@@ -3,7 +3,7 @@ import openai
 from logger import log_info
 from llama_index import SimpleDirectoryReader
 
-openai.api_key = utils.get_open_ai_key()
+openai.api_key = utils.get_openai_api_key()
 
 
 documents = (SimpleDirectoryReader(input_files=["testing_assets/eBook-How-to-Build-a-Career-in-AI.pdf"]).load_data())
@@ -36,3 +36,36 @@ response = query_engine.query(
 )
 
 log_info(str(response))
+
+## Evaluation setup using TruLens
+eval_questions = []
+with open('testing_assets/eval_questions.txt', 'r') as file:
+    for line in file:
+        # Remove newline character and convert to integer
+        item = line.strip()
+        print(item)
+        eval_questions.append(item)
+
+new_question = "What is the right AI job for me?"
+eval_questions.append(new_question)
+print(eval_questions)
+
+from trulens_eval import Tru
+tru = Tru()
+
+tru.reset_database()
+
+from utils import get_prebuilt_trulens_recorder
+
+tru_recorder = get_prebuilt_trulens_recorder(query_engine,
+                                             app_id="Direct Query Engine")
+
+with tru_recorder as recording:
+    for question in eval_questions:
+        response = query_engine.query(question)
+
+records, feedback = tru.get_records_and_feedback(app_ids=[])
+
+records.head()
+
+tru.run_dashboard()
