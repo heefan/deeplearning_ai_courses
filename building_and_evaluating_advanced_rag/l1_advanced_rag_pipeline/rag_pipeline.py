@@ -144,5 +144,6 @@ class RagPipeLine:
 
 if __name__ == "__main__":
     rag_pipeline = RagPipeLine()
-    rag_pipeline.direct_evaluate()
+    # rag_pipeline.direct_evaluate()
+    rag_pipeline.automerging_evaluate()
 
