@@ -1,10 +1,10 @@
-import utils
+from helper import utils
 import openai
-from logger import log_info
+from helper.logger import log_info
 from llama_index import SimpleDirectoryReader, Document, VectorStoreIndex, ServiceContext
 from llama_index.llms import OpenAI
 from trulens_eval import Tru
-from utils import build_sentence_window_index, get_sentence_window_query_engine, get_prebuilt_trulens_recorder
+from helper.utils import build_sentence_window_index, get_sentence_window_query_engine, get_prebuilt_trulens_recorder
 
 openai.api_key = utils.get_openai_api_key()
 pdf_book = "testing_assets/eBook-How-to-Build-a-Career-in-AI.pdf"
@@ -29,7 +29,7 @@ class RagPipeLine:
 
         ## Evaluation Questions
         self.eval_questions = []
-        with open('testing_assets/eval_questions.txt', 'r') as file:
+        with open('../testing_assets/eval_questions.txt', 'r') as file:
             for line in file:
                 # Remove newline character and convert to integer
                 item = line.strip()
