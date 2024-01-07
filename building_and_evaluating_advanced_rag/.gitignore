@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 default.sqlite
 .streamlit
+merging_index
+sentence_index
