@@ -8,7 +8,7 @@
    [0.2.5](https://api.python.langchain.com/en/latest/memory/langchain.memory.buffer.ConversationBufferMemory.html#langchain.memory.buffer.ConversationBufferMemory)
 
 * ConversationStringBufferMemory
-* ConversationTokenBufferMemory
+* ConversationTokenBufferMemory - `langchain.memory.token_buffer`
 * ConversationSummaryMemory - Conversation summarizer to chat memory.
 
 
