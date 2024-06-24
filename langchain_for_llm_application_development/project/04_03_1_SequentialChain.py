@@ -1,4 +1,4 @@
-""" 04 - Sequential Chain - Langchain - 0.2.5 """
+""" 04 - Sequential Chain == RunnableSequence - Langchain - 0.2.5 """
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableSequence

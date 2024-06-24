@@ -1,4 +1,4 @@
-""" 04 SequentialChain - langchain 0.2.5 """
+""" 04 SequentialChain == RunnableSequence - langchain 0.2.5 """
 
 from utility import OpenAIHelper
 from langchain_core.prompts import ChatPromptTemplate
