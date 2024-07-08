@@ -29,6 +29,6 @@ chat_result = joe.initiate_chat(
 )
 
 pprint(chat_result.chat_history)
-pprint(chat_result.cost)
-pprint(chat_result.summary)
+#pprint(chat_result.cost)
+#pprint(chat_result.summary)
 print("\n\n\n")
