@@ -1,9 +1,9 @@
 from utils import get_open_ai_key
+from utils import llm_config
 from autogen import ConversableAgent
 from pprint import pprint
 from autogen import initiate_chats
 
-llm_config = {"model": "gpt-3.5-turbo"}
 
 onboarding_personal_information_agent = ConversableAgent(
     name="Onboarding Personal Information Agent",
