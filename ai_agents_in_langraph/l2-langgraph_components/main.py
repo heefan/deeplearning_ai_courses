@@ -2,15 +2,15 @@ from dotenv import load_dotenv
 _ = load_dotenv()
 
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_core.messages import AIMessage, ToolMessage
 
 tool = TavilySearchResults(max_results=4)
-print(type(tool))
 print(tool.name)
 
 from typing import Annotated, operator, TypedDict
-from langchain_core.messages import AnyMessage
+from langchain_core.messages import AnyMessage  #AnyMessage contains ToolMessage, AIMessage, HumanMessage, ..., etc.
 
-class AgentState(TypedDict):
+class AgentState(TypedDict):   # [operator.add, ...]
     messages: Annotated[list[AnyMessage], operator.add]
 
 from langgraph.graph import StateGraph, END
@@ -23,9 +23,9 @@ class Agent:
         graph.add_node("llm", self.call_openai)
         graph.add_node("action", self.take_action)
         graph.add_conditional_edges(
-            "llm",
-            self.exists_action,
-            {True: "action", False: END}
+            "llm",  # from
+            self.exists_action, #condition
+            {True: "action", False: END}  # condition result
         )
         graph.add_edge("action", "llm")
         graph.set_entry_point("llm")
@@ -35,7 +35,9 @@ class Agent:
 
     def exists_action(self, state: AgentState):
         result = state["messages"][-1]
-        return len(result.tool_calls) > 0
+        if isinstance(result, AIMessage):
+            return len(result.tool_calls) > 0
+        return False
     
     def call_openai(self, state: AgentState):
         messages = state["messages"]    
@@ -79,6 +81,5 @@ with open("graph.png", "wb") as f:
 from PIL import Image
 img = Image.open("graph.png")
 img.show()
-
 
 
