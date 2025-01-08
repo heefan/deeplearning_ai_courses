@@ -15,7 +15,9 @@ class AgentState(TypedDict):   # [operator.add, ...]
     messages: Annotated[list[AnyMessage], operator.add]
 
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import SystemMessage, BaseChatModel, BaseTool
+from langchain_core.messages import SystemMessage
+from langchain_core.tools.base import BaseTool
+from langchain_core.language_models.chat_models import BaseChatModel
 
 class Agent:
     def __init__(self, model: BaseChatModel, tools: list[BaseTool], system=""):
@@ -51,7 +53,7 @@ class Agent:
     
     ## attach with "llm" node
     ## the function take current state, and append with system message if it exists,
-    ## then invoke the model, and save the new assitant message to state
+    ## then invoke the model, and save the new assistant message to state
     ## return the new state as AgentState
     def call_openai(self, state: AgentState) -> AgentState:
         messages = state["messages"]    
