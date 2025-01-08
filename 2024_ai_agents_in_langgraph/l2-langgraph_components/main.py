@@ -75,13 +75,15 @@ class Agent:
         for t in tool_calls:
             print(f"Calling {t}")
             if not isinstance(t, dict) or "name" not in t:
+                # validate tool name from input parameter
                 print("\n .... invalid tool call format ....")
                 result = "invalid tool call format"
             elif t["name"] not in self.tools:
+                # validate tool name from self.tools record
                 print("\n .... bad tool name ....")
                 result = "bad tool name, retry"
             else:
-                #expected result
+                # call all tools with their args
                 result = self.tools[t["name"]].invoke(t["args"])
 
             results.append(ToolMessage(tool_call_id=t["id"], name=t["name"], content=str(result)))
@@ -110,4 +112,27 @@ from PIL import Image
 img = Image.open("graph.png")
 img.show()
 
+
+##########################
+from langchain_core.messages import HumanMessage
+
+messages = [HumanMessage(content="What is the weather in Tokyo?")]
+# Wrap the messages in the correct AgentState format
+initial_state = {"messages": messages}
+result = a_bot.graph.invoke(initial_state)
+print(result["messages"][-1].content)
+
+
+
+##########################
+query = """
+who won the super bowl in 2024? In what state is the winning team headquarters located?
+what is the GDP of that state? Answer each question.
+"""
+messages = [HumanMessage(content=query)]
+
+model = ChatOpenAI(model="gpt-4o")
+a_bot_2 = Agent(model, [tool], system=prompt)
+result = a_bot_2.graph.invoke({"messages": messages})
+print(result["messages"][-1].content)
 
