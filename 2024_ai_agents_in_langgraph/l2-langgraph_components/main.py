@@ -1,23 +1,25 @@
 from dotenv import load_dotenv
-_ = load_dotenv()
-
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.messages import AIMessage, ToolMessage, ToolCall
-
-tool = TavilySearchResults(max_results=4)
-print(tool.name)
-
 from typing import Annotated, operator, TypedDict
 from langchain_core.messages import AnyMessage 
-#Notes: AnyMessage contains ToolMessage, AIMessage, HumanMessage, ..., etc.
-
-class AgentState(TypedDict):   # [operator.add, ...]
-    messages: Annotated[list[AnyMessage], operator.add]
-
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import SystemMessage
 from langchain_core.tools.base import BaseTool
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+
+_ = load_dotenv()
+tool = TavilySearchResults(max_results=4)
+
+#Notes: AnyMessage contains ToolMessage, AIMessage, HumanMessage, ..., etc.
+class AgentState(TypedDict):   # [operator.add, ...]
+    messages: Annotated[list[AnyMessage], operator.add]
+
+    @classmethod
+    def __call__(cls, messages: list[AnyMessage]):
+        return cls(messages=messages)
 
 class Agent:
     def __init__(self, model: BaseChatModel, tools: list[BaseTool], system=""):
@@ -60,11 +62,7 @@ class Agent:
         if self.system:
             messages = [SystemMessage(content=self.system)] + messages
         message:AIMessage = self.model.invoke(messages)
-
-        print("---> message: ", message)
-        print("---end---")
-
-        return {"messages": [message]}
+        return AgentState(messages=[message])
     
     ## attach with "action" node
     ## Notes: AI Message is an assistant message. 
@@ -91,8 +89,9 @@ class Agent:
                 result = self.tools[t["name"]].invoke(t["args"])
 
             results.append(ToolMessage(tool_call_id=t["id"], name=t["name"], content=str(result)))
-        print("Back to the model")
-        return {"messages" : results}
+
+        print("===> Back to the llm node")
+        return AgentState(messages=results)
     
 prompt = """
 You are a smart research assistant. Use the search engine to look up information.
@@ -100,9 +99,6 @@ You are allowed to make multiple calls (either together or in sequence).
 Only look up information when you are sure of what you want.
 If you need to look up some information before asking a follow up question, you are allowed to do that. 
 """
-
-from langchain_openai import ChatOpenAI
-
 model = ChatOpenAI(model="gpt-4o-mini")
 a_bot = Agent(model, [tool], system=prompt)
 
@@ -117,26 +113,16 @@ img = Image.open("graph.png")
 img.show()
 
 
-##########################
-from langchain_core.messages import HumanMessage
-
-messages = [HumanMessage(content="What is the weather in Tokyo?")]
-# Wrap the messages in the correct AgentState format
-initial_state = {"messages": messages}
+#######################################
+# Use Case 1: Query with LLM only
+print("############## Use Case 1 ########################")
+messages = [HumanMessage(content="who is Steve Jobs?")]
+initial_state = AgentState(messages=messages)
 result = a_bot.graph.invoke(initial_state)
 print(result["messages"][-1].content)
 
-
-
-##########################
-# query = """
-# who won the super bowl in 2024? In what state is the winning team headquarters located?
-# what is the GDP of that state? Answer each question.
-# """
-# messages = [HumanMessage(content=query)]
-
-# model = ChatOpenAI(model="gpt-4o")
-# a_bot_2 = Agent(model, [tool], system=prompt)
-# result = a_bot_2.graph.invoke({"messages": messages})
-# print(result["messages"][-1].content)
-
+print("############## Use Case 2 ########################")
+messages = [HumanMessage(content="what's weather in Singapore")]
+initial_state = AgentState(messages=messages)
+result = a_bot.graph.invoke(initial_state)
+print(result["messages"][-1].content)
