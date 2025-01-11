@@ -59,7 +59,11 @@ class Agent:
         messages = state["messages"]    
         if self.system:
             messages = [SystemMessage(content=self.system)] + messages
-        message = self.model.invoke(messages)
+        message:AIMessage = self.model.invoke(messages)
+
+        print("---> message: ", message)
+        print("---end---")
+
         return {"messages": [message]}
     
     ## attach with "action" node
@@ -125,14 +129,14 @@ print(result["messages"][-1].content)
 
 
 ##########################
-query = """
-who won the super bowl in 2024? In what state is the winning team headquarters located?
-what is the GDP of that state? Answer each question.
-"""
-messages = [HumanMessage(content=query)]
+# query = """
+# who won the super bowl in 2024? In what state is the winning team headquarters located?
+# what is the GDP of that state? Answer each question.
+# """
+# messages = [HumanMessage(content=query)]
 
-model = ChatOpenAI(model="gpt-4o")
-a_bot_2 = Agent(model, [tool], system=prompt)
-result = a_bot_2.graph.invoke({"messages": messages})
-print(result["messages"][-1].content)
+# model = ChatOpenAI(model="gpt-4o")
+# a_bot_2 = Agent(model, [tool], system=prompt)
+# result = a_bot_2.graph.invoke({"messages": messages})
+# print(result["messages"][-1].content)
 
