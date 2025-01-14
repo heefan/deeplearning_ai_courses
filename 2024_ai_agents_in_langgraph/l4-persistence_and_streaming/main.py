@@ -5,7 +5,6 @@ from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, Too
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_openai import ChatOpenAI
-import json
 
 _ = load_dotenv()
 
@@ -73,40 +72,89 @@ Only look up information when you are sure of what you want.
 If you need to look up some information before asking a follow up question, you are allowed to do that.
 """
 
+import json
+
+def print_result(result):
+    data = {
+        "result": result
+    }
+    print(json.dumps(data, indent=4))
+
 model = ChatOpenAI(model="gpt-4o")
 
-# with SqliteSaver.from_conn_string(":memory:") as checkpointer:
-#     agent = Agent(model, [tool], checkpointer, system=prompt)
+def visualize_agent_graph(agent, filename="graph.png"):
+    png_data = agent.graph.get_graph().draw_png()
+    with open(filename, "wb") as f:
+        f.write(png_data)
+    
+    from PIL import Image
+    img = Image.open(filename)
+    img.show()
 
-#     # Mensajes de prueba
-#     messages = [HumanMessage(content="What is the weather in SF?")]
-#     thread = {"configurable": {"thread_id": "1"}}
+def print_message(message: AnyMessage):
+    """Helper function to print message content in a readable format"""
+    if isinstance(message, (AIMessage, HumanMessage, ToolMessage)):
+        print(f"Type: {type(message).__name__}")
+        print(f"Content: {message.content}")
+        if hasattr(message, 'tool_calls') and message.tool_calls:
+            print("Tool Calls:")
+            for tool_call in message.tool_calls:
+                print(f"  - Tool: {tool_call['name']}")
+                print(f"    Args: {tool_call['args']}")
+        print("-" * 50)
 
-#     # Streaming de eventos
-#     for event in agent.graph.stream({"messages": messages}, thread):
-#         for value in event.values():
-#             print(value['messages'])
+def print_message_data(message: AnyMessage):
+    """Helper function to convert message to JSON-serializable format"""
+    message_data = {
+        "type": type(message).__name__,
+        "content": message.content,
+        "additional_kwargs": message.additional_kwargs,
+    }
+    
+    # Add tool_calls if they exist
+    if hasattr(message, 'tool_calls') and message.tool_calls:
+        message_data["tool_calls"] = message.tool_calls
+        
+    # Add any response metadata if it exists
+    if hasattr(message, 'response_metadata'):
+        message_data["response_metadata"] = message.response_metadata
+        
+    print(json.dumps(message_data, indent=2))
 
-# save the png data to a file first
-memory = SqliteSaver.from_conn_string(":memory:")
-agent = Agent(model, [tool], checkpointer=memory, system=prompt)
-
-
-png_data = agent.graph.get_graph().draw_png()
-with open("graph.png", "wb") as f:
-    f.write(png_data)
-
-# now open and show the image using pil
-from PIL import Image
-img = Image.open("graph.png")
-img.show()
-
+### Run the graph
 with SqliteSaver.from_conn_string(":memory:") as memory:
     agent = Agent(model, [tool], checkpointer=memory, system=prompt)
+    visualize_agent_graph(agent)
     
-    messages = [HumanMessage(content="What is the weather in sf?")]
+    messages = [HumanMessage(content="What is the weather in Singapore today")]
+    state = {"messages": messages}
     thread = {"configurable": {"thread_id": "1"}}
-    for event in agent.graph.stream({"messages": messages}, thread):
+    for event in agent.graph.stream(state, thread):
         for v in event.values():
-            print(v['messages'])
+            print("\n------------  New Event: ", type(v))
+            for message in v['messages']:
+                print_message_data(message)
 
+    messages = [HumanMessage(content="What about in la?")]
+    thread = {"configurable": {"thread_id": "1"}}
+    state = {"messages": messages}
+    for event in agent.graph.stream(state, thread):
+        for v in event.values():
+            for message in v['messages']:
+                print_message_data(message)
+
+    messages = [HumanMessage(content="Which one is warmer?")]
+    thread = {"configurable": {"thread_id": "1"}}
+    state = {"messages": messages}
+    for event in agent.graph.stream(state, thread):
+        for v in event.values():
+            for message in v['messages']:
+                print_message_data(message)
+    
+    messages = [HumanMessage(content="Which one is warmer?")]
+    state = {"messages": messages}
+    thread = {"configurable": {"thread_id": "2"}}
+    for event in agent.graph.stream(state, thread):
+        for v in event.values():
+            for message in v['messages']:
+                print_message_data(message)
