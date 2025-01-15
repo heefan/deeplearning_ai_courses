@@ -13,6 +13,13 @@ from langchain_core.messages import HumanMessage
 _ = load_dotenv()
 tool = TavilySearchResults(max_results=4)
 
+ERROR_CODES = {
+       "INVALID_MESSAGE": "E001",
+       "TOOL_NOT_FOUND": "E002",
+       "EXECUTION_ERROR": "E003"
+   }
+        
+
 #Notes: AnyMessage contains ToolMessage, AIMessage, HumanMessage, ..., etc.
 class AgentState(TypedDict):   # [operator.add, ...]
     messages: Annotated[list[AnyMessage], operator.add]
