@@ -13,6 +13,8 @@ from langchain_core.messages import AnyMessage, SystemMessage, HumanMessage, AIM
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.tools.base import BaseTool
 from enum import Enum
+from PIL import Image
+from utility import print_message_data, print_agent_graph
 
 _ = load_dotenv()
 
@@ -48,14 +50,14 @@ class AgentState(TypedDict):
         return cls(messages=messages)
 
 
-tool = TavilySearchResults(max_results=2)
 
 class Agent:
-    def __init__(self, model: BaseChatModel, tools: list[BaseTool], system_message: str):
+    def __init__(self, model: BaseChatModel, tools: list[BaseTool], system_message: str, checkpointer: SqliteSaver):
         self.system_message = system_message 
         graph = StateGraph(AgentState)
         llm_node = "llm"
         action_node = "take_action"
+        graph.set_entry_point(llm_node)
         graph.add_node(llm_node, self._call_openai)
         graph.add_node(action_node, self._take_action)
         graph.add_conditional_edges(llm_node, 
@@ -65,11 +67,13 @@ class Agent:
                                         False: END
                                     })
         graph.add_edge(action_node, llm_node)
-        self.graph = graph.compile()
-        self.tools = tools
-        self.model = model.bind_tools(self.tools)
+        self.graph = graph.compile(checkpointer=checkpointer)
 
-    def _call_openai(self, state: AgentState, messages: list[AnyMessage]) -> AgentState:
+        # note: don't do self.tools = tools, this is for fast lookup
+        self.tools = {t.name: t for t in tools}
+        self.model = model.bind_tools(tools=tools)
+
+    def _call_openai(self, state: AgentState) -> AgentState:
         messages = state["messages"]
         if self.system_message:
             system_prompt = SystemMessage(content=self.system_message)
@@ -77,7 +81,7 @@ class Agent:
         response: AIMessage = self.model.invoke(messages)
         return AgentState(messages=[response])
 
-    def _take_action(self, state: AgentState, messages: list[AnyMessage]) -> AgentState | ErrorCode:
+    def _take_action(self, state: AgentState) -> AgentState | ErrorCode:
         last_message = state["messages"][-1]
         if not isinstance(last_message, AIMessage): 
             return ErrorCode.SHOULD_BE_AI_MESSAGE
@@ -87,17 +91,17 @@ class Agent:
         
         for tool_call in tool_calls:
             name = tool_call['name']
-            
+            call_id = tool_call['id']
+            args = tool_call['args']
+
             if not name:
                 return ErrorCode.TOOL_NOT_FOUND 
             if name not in self.tools:
                 return ErrorCode.TOOL_NOT_FOUND    
             else:
-                args = tool_call['args']
                 response = self.tools[name].invoke(args)
             
-            id = tool_call['id']
-            tool_message = ToolMessage(tool_call_id=id, name=name, content=str(response))
+            tool_message = ToolMessage(tool_call_id=call_id, name=name, content=str(response))
             responses.append(tool_message)
             
         return AgentState(messages=responses)
@@ -109,3 +113,29 @@ class Agent:
             return False
         
         return len(last_message.tool_calls) > 0
+
+        
+######### main #########
+system_prompt = """You are a smart research assistant. Use the search engine to look up information. \
+You are allowed to make multiple calls (either together or in sequence). \
+Only look up information when you are sure of what you want. \
+If you need to look up some information before asking a follow up question, you are allowed to do that!
+"""
+model = ChatOpenAI(model="gpt-4o")
+
+user_message = HumanMessage(content="What is the weather in Singapore?")
+state = AgentState(messages=[user_message])
+
+with SqliteSaver.from_conn_string(":memory:") as memory:
+    tool = TavilySearchResults(max_results=2)
+    agent = Agent(model=model, tools=[tool], system_message=system_prompt, checkpointer=memory)
+    print_agent_graph(agent=agent)
+    thread = {"configurable": {"thread_id": "1"}}
+    events = agent.graph.stream(state, thread)
+
+    for event in events:
+        for value in event.values():
+            for message in value["messages"]:
+                print(type(message))
+                print_message_data(message)
+    
