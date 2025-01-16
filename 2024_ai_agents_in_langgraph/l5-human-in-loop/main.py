@@ -51,7 +51,6 @@ class AgentState(TypedDict):
         return cls(messages=messages)
 
 
-
 LLM_NODE = "llm"
 ACTION_NODE = "take_action"
 HUMAN_APPROVE_NODE = "human_approve"
