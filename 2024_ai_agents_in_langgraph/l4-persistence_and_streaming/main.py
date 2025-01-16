@@ -158,3 +158,6 @@ with SqliteSaver.from_conn_string(":memory:") as memory:
         for v in event.values():
             for message in v['messages']:
                 print_message_data(message)
+
+    agent.graph.save_graph(thread)
+    agent.graph.get_state(thread).next
