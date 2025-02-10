@@ -5,6 +5,8 @@ from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 def _set_env(var: str):
     if not os.environ.get(var):
@@ -46,17 +48,20 @@ def stream_graph_updates(user_input: str):
             print("Assistant:", value["messages"][-1].content)
 
 
-while True:
-    try:
-        user_input = input("User: ")
-        if user_input.lower() in ["quit", "exit", "q"]:
-            print("Goodbye!")
-            break
+app = FastAPI()
 
-        stream_graph_updates(user_input)
-    except:
-        # fallback if input() is not available
-        user_input = "What do you know about LangGraph?"
-        print("User: " + user_input)
-        stream_graph_updates(user_input)
-        break
+class ChatInput(BaseModel):
+    message: str
+
+@app.post("/chat")
+async def chat_endpoint(chat_input: ChatInput):
+    responses = []
+    for event in graph.stream({"messages": [{"role": "user", "content": chat_input.message}]}):
+        for value in event.values():
+            responses.append(value["messages"][-1].content)
+    return {"response": responses[-1]}
+
+# Comment out or remove the while loop and replace with this if you want to run the API server
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
