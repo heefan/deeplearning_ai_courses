@@ -17,7 +17,7 @@ class State(TypedDict):
 
 def create_agent():
     graph_builder = StateGraph(State)
-    llm = ChatOpenAI(model="gpt-4-mini")
+    llm = ChatOpenAI(model="gpt-4o-mini")
 
     def chatbot(state: State):
         return {"messages": [llm.invoke(state["messages"])]}

@@ -33,7 +33,7 @@ def print_message_data(message: AnyMessage):
     print(json.dumps(message_data, indent=2))
     
 def print_agent_graph(agent, filename="graph.png"):
-    png_data = agent.graph.get_graph().draw_png()
+    png_data = agent.get_graph().draw_png()
     with open(filename, "wb") as f:
         f.write(png_data)
     

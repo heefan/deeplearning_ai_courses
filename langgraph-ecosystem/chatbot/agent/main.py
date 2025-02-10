@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from agent import create_agent
-
+from utility import print_agent_graph
+    
 app = FastAPI()
 graph = create_agent()
+
+print_agent_graph(graph)
 
 class ChatInput(BaseModel):
     message: str
@@ -18,4 +21,10 @@ async def chat_endpoint(chat_input: ChatInput):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,           
+        reload_dirs=["./"],    
+    )
