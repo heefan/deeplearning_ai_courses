@@ -6,6 +6,10 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
 
+from langgraph.checkpoint.memory import MemorySaver
+
+memory = MemorySaver()
+
 def _set_env(var: str):
     if not os.environ.get(var):
         os.environ[var] = getpass.getpass(f"{var}: ")
@@ -26,4 +30,4 @@ def create_agent():
     graph_builder.add_edge(START, "chatbot")
     graph_builder.add_edge("chatbot", END)
 
-    return graph_builder.compile() 
+    return graph_builder.compile(checkpointer=memory) 
