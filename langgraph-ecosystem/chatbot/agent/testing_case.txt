@@ -1,0 +1,11 @@
+(.venv3_12_8) ➜  agent git:(main) ✗ curl -X POST http://localhost:8000/chat \
+     -H "Content-Type: application/json" \
+     -d '{"message": "my name is heefan"}'
+{"response":"Nice to meet you, Heefan! How can I assist you today?","status":"success","session_id":"538f22a4-cfbf-4c6c-908f-049985da809a","conversation":[{"content":"Nice to meet you, Heefan! How can I assist you today?","additional_kwargs":{"refusal":null},"response_metadata":{"token_usage":{"completion_tokens":17,"prompt_tokens":13,"total_tokens":30,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0}},"model_name":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_bd83329f63","finish_reason":"stop","logprobs":null},"type":"ai","name":null,"id":"run-52ab9457-c04f-4176-9a0e-1575c73ba4e9-0","example":false,"tool_calls":[],"invalid_tool_calls":[],"usage_metadata":{"input_tokens":13,"output_tokens":17,"total_tokens":30,"input_token_details":{"audio":0,"cache_read":0},"output_token_details":{"audio":0,"reasoning":0}}}]}%   
+
+
+
+(.venv3_12_8) ➜  agent git:(main) ✗ curl -X POST http://localhost:8000/chat \
+     -H "Content-Type: application/json" \
+     -d '{"message": "what is my name?", "session_id": "538f22a4-cfbf-4c6c-908f-049985da809a"}'
+{"response":"Your name is Heefan. How can I help you today?","status":"success","session_id":"538f22a4-cfbf-4c6c-908f-049985da809a","conversation":[{"content":"Your name is Heefan. How can I help you today?","additional_kwargs":{"refusal":null},"response_metadata":{"token_usage":{"completion_tokens":15,"prompt_tokens":42,"total_tokens":57,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0}},"model_name":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_72ed7ab54c","finish_reason":"stop","logprobs":null},"type":"ai","name":null,"id":"run-960ca4d2-7fce-4dfd-87e7-bc7c6c273f34-0","example":false,"tool_calls":[],"invalid_tool_calls":[],"usage_metadata":{"input_tokens":42,"output_tokens":15,"total_tokens":57,"input_token_details":{"audio":0,"cache_read":0},"output_token_details":{"audio":0,"reasoning":0}}}]}%  
