@@ -1,0 +1,18 @@
+# Cursor Rules for Essay Composer
+
+## Dependency Management
+- Use `uv` for ALL Python dependency management (NO pip)
+- Run `uv add <package>` to add new dependencies
+- Use `uv run` to execute Python scripts
+- Keep `requirements.txt` in sync with `pyproject.toml`
+- Never use `pip install` directly
+
+## Development Workflow
+- Use `uv run python essay_composer.py` to run the main application
+- Use `uv run python -m pytest` for testing (when tests are added)
+- Use `uv sync` to install dependencies from `pyproject.toml`
+
+## Code Style
+- Follow PEP 8 for Python code formatting
+- Use type hints where appropriate
+- Keep functions focused and well-documented

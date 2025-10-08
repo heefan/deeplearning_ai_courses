@@ -1,0 +1,30 @@
+[project]
+name = "essay-composer"
+version = "0.1.0"
+description = "Essay Composer with Reflection Pattern using LM Studio"
+authors = [
+    {name = "Essay Composer Team"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "openai>=1.0.0",
+    "click>=8.0.0",
+    "google-adk>=0.2.0",
+]
+
+[project.scripts]
+essay-composer = "essay_composer:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
