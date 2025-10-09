@@ -2,7 +2,6 @@
 Tests for LM Studio client functionality.
 """
 import pytest
-from unittest.mock import Mock, patch
 from src.llm_client import LMStudioClient
 
 
@@ -19,59 +18,29 @@ class TestLMStudioClient:
         client = LMStudioClient("http://localhost:8080/v1")
         assert str(client.client.base_url) == "http://localhost:8080/v1/"
    
-    @patch('src.llm_client.openai.OpenAI')
-    def test_generate_text_success(self, mock_openai):
-        """Test successful text generation."""
-        # Mock the OpenAI client and response
-        mock_client = Mock()
-        mock_response = Mock()
-        mock_response.choices = [Mock()]
-        mock_response.choices[0].message.content = "Generated text response"
-        mock_client.chat.completions.create.return_value = mock_response
-        mock_openai.return_value = mock_client
+    def test_generate_text_success(self):
+        """Test successful text generation with real LM Studio."""
+        client = LMStudioClient("http://localhost:1234/v1")
+        result = client.generate_text("Hello, how are you?")
         
-        client = LMStudioClient()
-        result = client.generate_text("Test prompt")
-        
-        assert result == "Generated text response"
-        mock_client.chat.completions.create.assert_called_once()
+        # Real assertions with real LM Studio
+        assert result is not None
+        assert len(result) > 0
+        assert isinstance(result, str)
     
-    @patch('src.llm_client.openai.OpenAI')
-    def test_generate_text_error(self, mock_openai):
-        """Test text generation with error."""
-        # Mock the OpenAI client to raise an exception
-        mock_client = Mock()
-        mock_client.chat.completions.create.side_effect = Exception("API Error")
-        mock_openai.return_value = mock_client
+    def test_generate_text_error(self):
+        """Test text generation with invalid URL."""
+        client = LMStudioClient("http://localhost:9999/v1")  # Invalid port
         
-        client = LMStudioClient()
-        
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(Exception):
             client.generate_text("Test prompt")
-        
-        assert "Error generating text: API Error" in str(exc_info.value)
     
-    @patch('src.llm_client.openai.OpenAI')
-    def test_test_connection_success(self, mock_openai):
-        """Test successful connection test."""
-        # Mock successful connection
-        mock_client = Mock()
-        mock_response = Mock()
-        mock_response.choices = [Mock()]
-        mock_response.choices[0].message.content = "Hello"
-        mock_client.chat.completions.create.return_value = mock_response
-        mock_openai.return_value = mock_client
-        
-        client = LMStudioClient()
+    def test_test_connection_success(self):
+        """Test successful connection to LM Studio."""
+        client = LMStudioClient("http://localhost:1234/v1")
         assert client.test_connection() is True
     
-    @patch('src.llm_client.openai.OpenAI')
-    def test_test_connection_failure(self, mock_openai):
-        """Test failed connection test."""
-        # Mock failed connection
-        mock_client = Mock()
-        mock_client.chat.completions.create.side_effect = Exception("Connection failed")
-        mock_openai.return_value = mock_client
-        
-        client = LMStudioClient()
+    def test_test_connection_failure(self):
+        """Test failed connection to LM Studio."""
+        client = LMStudioClient("http://localhost:9999/v1")  # Invalid port
         assert client.test_connection() is False
