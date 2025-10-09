@@ -3,7 +3,7 @@ Essay Generator Agent using Google ADK.
 """
 from google.adk.agents import LlmAgent
 from typing import Dict, Any
-from ..llm_client import LMStudioClient
+from ..lmstudio_client import LMStudioClient
 from ..prompts import EssayPrompts
 
 

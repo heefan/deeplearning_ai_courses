@@ -2,7 +2,7 @@
 Tests for LM Studio client functionality.
 """
 import pytest
-from src.llm_client import LMStudioClient
+from src.lmstudio_client import LMStudioClient
 
 
 class TestLMStudioClient:

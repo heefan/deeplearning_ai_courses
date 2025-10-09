@@ -2,7 +2,7 @@
 Unit tests for LM Studio client functionality.
 """
 import pytest
-from src.llm_client import LMStudioClient
+from src.lmstudio_client import LMStudioClient
 
 
 class TestLMStudioClientUnit:
@@ -25,7 +25,7 @@ class TestLMStudioClientUnit:
         
         # Real assertions with real LM Studio
         assert result is not None
-        assert len(result) > 
+        assert len(result) > 0
         assert isinstance(result, str)
     
     def test_generate_text_custom_rams(self):
