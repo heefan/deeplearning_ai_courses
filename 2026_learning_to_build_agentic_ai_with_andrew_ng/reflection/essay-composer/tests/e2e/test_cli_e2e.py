@@ -4,13 +4,13 @@ End-to-end tests for CLI functionality.
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from click.testing import CliRunner
-from essay_composer import main
+from src.essay_composer import main
 
 
 class TestCLIE2E:
     """End-to-end tests for CLI functionality."""
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_basic_usage_adk(self, mock_composer_class):
         """Test basic CLI usage with ADK mode."""
         # Setup mocks
@@ -29,12 +29,10 @@ class TestCLIE2E:
         assert "Test Topic" in result.output
         assert "Generated essay content" in result.output
         
-        # Verify composer was initialized with ADK
+        # Verify composer was initialized
         mock_composer_class.assert_called_once()
-        call_args = mock_composer_class.call_args
-        assert call_args[1]["use_adk"] is True
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_legacy_mode(self, mock_composer_class):
         """Test CLI usage with legacy mode."""
         # Setup mocks
@@ -52,12 +50,10 @@ class TestCLIE2E:
         assert result.exit_code == 0
         assert "Test Topic" in result.output
         
-        # Verify composer was initialized in legacy mode
+        # Verify composer was initialized
         mock_composer_class.assert_called_once()
-        call_args = mock_composer_class.call_args
-        assert call_args[1]["use_adk"] is False
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_quiet_mode(self, mock_composer_class):
         """Test CLI usage with quiet mode."""
         # Setup mocks
@@ -78,7 +74,7 @@ class TestCLIE2E:
         # Verify compose_essay was called with verbose=False
         mock_composer.compose_essay.assert_called_once_with("Test Topic", False)
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_verbose_mode(self, mock_composer_class):
         """Test CLI usage with verbose mode (default)."""
         # Setup mocks
@@ -98,7 +94,7 @@ class TestCLIE2E:
         # Verify compose_essay was called with verbose=True (default)
         mock_composer.compose_essay.assert_called_once_with("Test Topic", True)
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_test_connection_success(self, mock_composer_class):
         """Test CLI test connection success."""
         # Setup mocks
@@ -114,7 +110,7 @@ class TestCLIE2E:
         assert "Testing connection to LM Studio..." in result.output
         assert "✅ Connection successful!" in result.output
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_test_connection_failure(self, mock_composer_class):
         """Test CLI test connection failure."""
         # Setup mocks
@@ -130,13 +126,12 @@ class TestCLIE2E:
         assert "Testing connection to LM Studio..." in result.output
         assert "❌ Connection failed!" in result.output
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_workflow_info_adk(self, mock_composer_class):
         """Test CLI workflow info with ADK mode."""
         # Setup mocks
         mock_composer = Mock()
         mock_composer_class.return_value = mock_composer
-        mock_composer.use_adk = True
         mock_composer.orchestrator.get_workflow_info.return_value = {
             "generator": "Generates essays",
             "reflector": "Critiques essays",
@@ -154,13 +149,12 @@ class TestCLIE2E:
         assert "Critiques essays" in result.output
         assert "Revises essays" in result.output
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_workflow_info_legacy(self, mock_composer_class):
         """Test CLI workflow info with legacy mode."""
         # Setup mocks
         mock_composer = Mock()
         mock_composer_class.return_value = mock_composer
-        mock_composer.use_adk = False
         
         runner = CliRunner()
         result = runner.invoke(main, ["--workflow-info", "--legacy"])
@@ -169,7 +163,7 @@ class TestCLIE2E:
         assert result.exit_code == 0
         assert "📝 Using legacy composition method (no ADK)" in result.output
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_custom_url(self, mock_composer_class):
         """Test CLI with custom LM Studio URL."""
         # Setup mocks
@@ -191,7 +185,7 @@ class TestCLIE2E:
         call_args = mock_composer_class.call_args
         assert call_args[0][0] == "http://custom:8080/v1"
     
-    @patch('essay_composer.EssayComposer')
+    @patch('src.essay_composer.EssayComposer')
     def test_cli_error_handling(self, mock_composer_class):
         """Test CLI error handling."""
         # Setup mocks

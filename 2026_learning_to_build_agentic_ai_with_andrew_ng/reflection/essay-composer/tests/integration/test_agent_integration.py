@@ -3,19 +3,19 @@ Integration tests for ADK agent interactions.
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from agents.orchestrator import EssayComposerOrchestrator
-from agents.essay_generator import EssayGeneratorAgent
-from agents.reflector import ReflectorAgent
-from agents.reviser import ReviserAgent
+from src.agents.orchestrator import EssayComposerOrchestrator
+from src.agents.essay_generator import EssayGeneratorAgent
+from src.agents.reflector import ReflectorAgent
+from src.agents.reviser import ReviserAgent
 
 
 class TestAgentIntegration:
     """Integration tests for agent interactions."""
     
-    @patch('agents.orchestrator.EssayGeneratorAgent')
-    @patch('agents.orchestrator.ReflectorAgent')
-    @patch('agents.orchestrator.ReviserAgent')
-    @patch('agents.orchestrator.SequentialAgent')
+    @patch('src.agents.orchestrator.EssayGeneratorAgent')
+    @patch('src.agents.orchestrator.ReflectorAgent')
+    @patch('src.agents.orchestrator.ReviserAgent')
+    @patch('src.agents.orchestrator.SequentialAgent')
     def test_orchestrator_agent_initialization(self, mock_sequential, mock_reviser, mock_reflector, mock_generator):
         """Test that orchestrator properly initializes all agents."""
         mock_gen_instance = Mock()
@@ -44,10 +44,10 @@ class TestAgentIntegration:
         
         assert orchestrator.workflow == mock_workflow
     
-    @patch('agents.orchestrator.EssayGeneratorAgent')
-    @patch('agents.orchestrator.ReflectorAgent')
-    @patch('agents.orchestrator.ReviserAgent')
-    @patch('agents.orchestrator.SequentialAgent')
+    @patch('src.agents.orchestrator.EssayGeneratorAgent')
+    @patch('src.agents.orchestrator.ReflectorAgent')
+    @patch('src.agents.orchestrator.ReviserAgent')
+    @patch('src.agents.orchestrator.SequentialAgent')
     def test_workflow_execution_integration(self, mock_sequential, mock_reviser, mock_reflector, mock_generator):
         """Test that workflow executes all agents in sequence."""
         # Setup mocks
@@ -82,10 +82,10 @@ class TestAgentIntegration:
         # Verify result
         assert result == expected_result
     
-    @patch('agents.orchestrator.EssayGeneratorAgent')
-    @patch('agents.orchestrator.ReflectorAgent')
-    @patch('agents.orchestrator.ReviserAgent')
-    @patch('agents.orchestrator.SequentialAgent')
+    @patch('src.agents.orchestrator.EssayGeneratorAgent')
+    @patch('src.agents.orchestrator.ReflectorAgent')
+    @patch('src.agents.orchestrator.ReviserAgent')
+    @patch('src.agents.orchestrator.SequentialAgent')
     def test_workflow_error_handling(self, mock_sequential, mock_reviser, mock_reflector, mock_generator):
         """Test workflow error handling."""
         # Setup mocks
@@ -109,10 +109,10 @@ class TestAgentIntegration:
         
         assert "Workflow execution failed" in str(exc_info.value)
     
-    @patch('agents.orchestrator.EssayGeneratorAgent')
-    @patch('agents.orchestrator.ReflectorAgent')
-    @patch('agents.orchestrator.ReviserAgent')
-    @patch('agents.orchestrator.SequentialAgent')
+    @patch('src.agents.orchestrator.EssayGeneratorAgent')
+    @patch('src.agents.orchestrator.ReflectorAgent')
+    @patch('src.agents.orchestrator.ReviserAgent')
+    @patch('src.agents.orchestrator.SequentialAgent')
     def test_get_workflow_info_integration(self, mock_sequential, mock_reviser, mock_reflector, mock_generator):
         """Test workflow info retrieval with all agents."""
         # Setup mocks

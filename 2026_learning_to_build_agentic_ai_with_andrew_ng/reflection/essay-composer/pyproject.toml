@@ -14,7 +14,10 @@ dependencies = [
 ]
 
 [project.scripts]
-essay-composer = "essay_composer:main"
+essay-composer = "src.essay_composer:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [build-system]
 requires = ["hatchling"]

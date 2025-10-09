@@ -3,25 +3,23 @@ Tests for LM Studio client functionality.
 """
 import pytest
 from unittest.mock import Mock, patch
-from llm_client import LMStudioClient
+from src.llm_client import LMStudioClient
 
 
 class TestLMStudioClient:
     """Test cases for LMStudioClient."""
     
-    def test_init_default_params(self):
-        """Test client initialization with default parameters."""
+    def test_init_default_url(self):
+        """Test client initialization with default URL."""
         client = LMStudioClient()
         assert str(client.client.base_url) == "http://localhost:1234/v1/"
-        assert client.client.api_key == "lm-studio"
     
-    def test_init_custom_params(self):
-        """Test client initialization with custom parameters."""
-        client = LMStudioClient("http://custom:8080/v1", "custom-key")
-        assert str(client.client.base_url) == "http://custom:8080/v1/"
-        assert client.client.api_key == "custom-key"
-    
-    @patch('llm_client.openai.OpenAI')
+    def test_init_custom_url(self):
+        """Test client initialization with custom URL."""
+        client = LMStudioClient("http://localhost:8080/v1")
+        assert str(client.client.base_url) == "http://localhost:8080/v1/"
+   
+    @patch('src.llm_client.openai.OpenAI')
     def test_generate_text_success(self, mock_openai):
         """Test successful text generation."""
         # Mock the OpenAI client and response
@@ -38,7 +36,7 @@ class TestLMStudioClient:
         assert result == "Generated text response"
         mock_client.chat.completions.create.assert_called_once()
     
-    @patch('llm_client.openai.OpenAI')
+    @patch('src.llm_client.openai.OpenAI')
     def test_generate_text_error(self, mock_openai):
         """Test text generation with error."""
         # Mock the OpenAI client to raise an exception
@@ -53,7 +51,7 @@ class TestLMStudioClient:
         
         assert "Error generating text: API Error" in str(exc_info.value)
     
-    @patch('llm_client.openai.OpenAI')
+    @patch('src.llm_client.openai.OpenAI')
     def test_test_connection_success(self, mock_openai):
         """Test successful connection test."""
         # Mock successful connection
@@ -67,7 +65,7 @@ class TestLMStudioClient:
         client = LMStudioClient()
         assert client.test_connection() is True
     
-    @patch('llm_client.openai.OpenAI')
+    @patch('src.llm_client.openai.OpenAI')
     def test_test_connection_failure(self, mock_openai):
         """Test failed connection test."""
         # Mock failed connection

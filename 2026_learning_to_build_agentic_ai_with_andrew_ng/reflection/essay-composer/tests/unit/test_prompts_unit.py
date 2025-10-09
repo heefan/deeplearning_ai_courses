@@ -2,7 +2,7 @@
 Unit tests for prompt templates.
 """
 import pytest
-from prompts import EssayPrompts
+from src.prompts import EssayPrompts
 
 
 class TestEssayPromptsUnit:

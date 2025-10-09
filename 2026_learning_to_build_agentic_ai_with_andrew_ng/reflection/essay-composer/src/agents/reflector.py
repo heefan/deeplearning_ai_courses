@@ -3,8 +3,8 @@ Reflector Agent using Google ADK.
 """
 from google.adk.agents import LlmAgent
 from typing import Dict, Any
-from llm_client import LMStudioClient
-from prompts import EssayPrompts
+from ..llm_client import LMStudioClient
+from ..prompts import EssayPrompts
 
 
 class ReflectorAgent:

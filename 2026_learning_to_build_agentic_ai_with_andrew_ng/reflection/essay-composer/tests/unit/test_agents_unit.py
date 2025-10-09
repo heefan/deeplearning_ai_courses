@@ -3,15 +3,15 @@ Unit tests for ADK agents.
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from agents.essay_generator import EssayGeneratorAgent
-from agents.reflector import ReflectorAgent
-from agents.reviser import ReviserAgent
+from src.agents.essay_generator import EssayGeneratorAgent
+from src.agents.reflector import ReflectorAgent
+from src.agents.reviser import ReviserAgent
 
 
 class TestEssayGeneratorAgentUnit:
     """Unit tests for EssayGeneratorAgent."""
     
-    @patch('agents.essay_generator.LMStudioClient')
+    @patch('src.agents.essay_generator.LMStudioClient')
     def test_init(self, mock_client_class):
         """Test agent initialization."""
         mock_client = Mock()
@@ -22,7 +22,7 @@ class TestEssayGeneratorAgentUnit:
         assert agent.client == mock_client
         mock_client_class.assert_called_once_with("http://test:8080/v1")
     
-    @patch('agents.essay_generator.LMStudioClient')
+    @patch('src.agents.essay_generator.LMStudioClient')
     def test_execute_success(self, mock_client_class):
         """Test successful essay generation."""
         mock_client = Mock()
@@ -39,7 +39,7 @@ class TestEssayGeneratorAgentUnit:
         assert result["topic"] == "Test Topic"
         mock_client.generate_text.assert_called_once()
     
-    @patch('agents.essay_generator.LMStudioClient')
+    @patch('src.agents.essay_generator.LMStudioClient')
     def test_execute_missing_topic(self, mock_client_class):
         """Test execution with missing topic."""
         mock_client = Mock()
@@ -53,7 +53,7 @@ class TestEssayGeneratorAgentUnit:
         
         assert "Topic is required for essay generation" in str(exc_info.value)
     
-    @patch('agents.essay_generator.LMStudioClient')
+    @patch('src.agents.essay_generator.LMStudioClient')
     def test_execute_empty_topic(self, mock_client_class):
         """Test execution with empty topic."""
         mock_client = Mock()
@@ -67,7 +67,7 @@ class TestEssayGeneratorAgentUnit:
         
         assert "Topic is required for essay generation" in str(exc_info.value)
     
-    @patch('agents.essay_generator.LMStudioClient')
+    @patch('src.agents.essay_generator.LMStudioClient')
     def test_execute_generation_error(self, mock_client_class):
         """Test execution with generation error."""
         mock_client = Mock()
@@ -95,7 +95,7 @@ class TestEssayGeneratorAgentUnit:
 class TestReflectorAgentUnit:
     """Unit tests for ReflectorAgent."""
     
-    @patch('agents.reflector.LMStudioClient')
+    @patch('src.agents.reflector.LMStudioClient')
     def test_init(self, mock_client_class):
         """Test agent initialization."""
         mock_client = Mock()
@@ -106,7 +106,7 @@ class TestReflectorAgentUnit:
         assert agent.client == mock_client
         mock_client_class.assert_called_once_with("http://test:8080/v1")
     
-    @patch('agents.reflector.LMStudioClient')
+    @patch('src.agents.reflector.LMStudioClient')
     def test_execute_success(self, mock_client_class):
         """Test successful reflection."""
         mock_client = Mock()
@@ -123,7 +123,7 @@ class TestReflectorAgentUnit:
         assert result["draft"] == "Test draft"
         mock_client.generate_text.assert_called_once()
     
-    @patch('agents.reflector.LMStudioClient')
+    @patch('src.agents.reflector.LMStudioClient')
     def test_execute_missing_draft(self, mock_client_class):
         """Test execution with missing draft."""
         mock_client = Mock()
@@ -137,7 +137,7 @@ class TestReflectorAgentUnit:
         
         assert "Draft is required for reflection" in str(exc_info.value)
     
-    @patch('agents.reflector.LMStudioClient')
+    @patch('src.agents.reflector.LMStudioClient')
     def test_execute_empty_draft(self, mock_client_class):
         """Test execution with empty draft."""
         mock_client = Mock()
@@ -151,7 +151,7 @@ class TestReflectorAgentUnit:
         
         assert "Draft is required for reflection" in str(exc_info.value)
     
-    @patch('agents.reflector.LMStudioClient')
+    @patch('src.agents.reflector.LMStudioClient')
     def test_execute_reflection_error(self, mock_client_class):
         """Test execution with reflection error."""
         mock_client = Mock()
@@ -179,7 +179,7 @@ class TestReflectorAgentUnit:
 class TestReviserAgentUnit:
     """Unit tests for ReviserAgent."""
     
-    @patch('agents.reviser.LMStudioClient')
+    @patch('src.agents.reviser.LMStudioClient')
     def test_init(self, mock_client_class):
         """Test agent initialization."""
         mock_client = Mock()
@@ -190,7 +190,7 @@ class TestReviserAgentUnit:
         assert agent.client == mock_client
         mock_client_class.assert_called_once_with("http://test:8080/v1")
     
-    @patch('agents.reviser.LMStudioClient')
+    @patch('src.agents.reviser.LMStudioClient')
     def test_execute_success(self, mock_client_class):
         """Test successful revision."""
         mock_client = Mock()
@@ -207,7 +207,7 @@ class TestReviserAgentUnit:
         assert result["workflow_status"] == "completed"
         mock_client.generate_text.assert_called_once()
     
-    @patch('agents.reviser.LMStudioClient')
+    @patch('src.agents.reviser.LMStudioClient')
     def test_execute_missing_draft(self, mock_client_class):
         """Test execution with missing draft."""
         mock_client = Mock()
@@ -221,7 +221,7 @@ class TestReviserAgentUnit:
         
         assert "Both draft and critique are required for revision" in str(exc_info.value)
     
-    @patch('agents.reviser.LMStudioClient')
+    @patch('src.agents.reviser.LMStudioClient')
     def test_execute_missing_critique(self, mock_client_class):
         """Test execution with missing critique."""
         mock_client = Mock()
@@ -235,7 +235,7 @@ class TestReviserAgentUnit:
         
         assert "Both draft and critique are required for revision" in str(exc_info.value)
     
-    @patch('agents.reviser.LMStudioClient')
+    @patch('src.agents.reviser.LMStudioClient')
     def test_execute_revision_error(self, mock_client_class):
         """Test execution with revision error."""
         mock_client = Mock()
