@@ -12,7 +12,7 @@ class TestEssayComposer:
         """Test composer initialization."""
         composer = EssayComposer("http://localhost:1234/v1")
         
-        assert hasattr(composer, 'orchestrator'
+        assert hasattr(composer, 'orchestrator')
         assert composer.orchestrator is not None
     
     def test_compose_essay_success(self):
