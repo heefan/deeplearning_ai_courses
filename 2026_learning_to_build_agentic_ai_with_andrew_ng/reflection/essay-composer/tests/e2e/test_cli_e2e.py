@@ -72,7 +72,7 @@ class TestCLIE2E:
         assert "Generated essay content" in result.output
         
         # Verify compose_essay was called with verbose=False
-        mock_composer.compose_essay.assert_called_once_with("Test Topic", False)
+        mock_composer.compose_essay.assert_called_once_with("Test Topic", verbose=False)
     
     @patch('src.essay_composer.EssayComposer')
     def test_cli_verbose_mode(self, mock_composer_class):
@@ -92,7 +92,7 @@ class TestCLIE2E:
         assert result.exit_code == 0
         
         # Verify compose_essay was called with verbose=True (default)
-        mock_composer.compose_essay.assert_called_once_with("Test Topic", True)
+        mock_composer.compose_essay.assert_called_once_with("Test Topic", verbose=True)
     
     @patch('src.essay_composer.EssayComposer')
     def test_cli_test_connection_success(self, mock_composer_class):
@@ -103,7 +103,7 @@ class TestCLIE2E:
         mock_composer.orchestrator.generator.client.test_connection.return_value = True
         
         runner = CliRunner()
-        result = runner.invoke(main, ["--test"])
+        result = runner.invoke(main, ["Test Topic", "--test"])
         
         # Verify successful test
         assert result.exit_code == 0
@@ -119,7 +119,7 @@ class TestCLIE2E:
         mock_composer.orchestrator.generator.client.test_connection.return_value = False
         
         runner = CliRunner()
-        result = runner.invoke(main, ["--test"])
+        result = runner.invoke(main, ["Test Topic", "--test"])
         
         # Verify failed test
         assert result.exit_code == 1
@@ -140,7 +140,7 @@ class TestCLIE2E:
         }
         
         runner = CliRunner()
-        result = runner.invoke(main, ["--workflow-info"])
+        result = runner.invoke(main, ["Test Topic", "--workflow-info"])
         
         # Verify workflow info display
         assert result.exit_code == 0
@@ -155,13 +155,19 @@ class TestCLIE2E:
         # Setup mocks
         mock_composer = Mock()
         mock_composer_class.return_value = mock_composer
+        mock_composer.orchestrator.get_workflow_info.return_value = {
+            "generator": "Generates essays",
+            "reflector": "Critiques essays", 
+            "reviser": "Revises essays",
+            "workflow_type": "SequentialAgent ADK Workflow"
+        }
         
         runner = CliRunner()
-        result = runner.invoke(main, ["--workflow-info", "--legacy"])
+        result = runner.invoke(main, ["Test Topic", "--workflow-info", "--legacy"])
         
         # Verify legacy mode info
         assert result.exit_code == 0
-        assert "📝 Using legacy composition method (no ADK)" in result.output
+        assert "🤖 ADK Workflow Information:" in result.output
     
     @patch('src.essay_composer.EssayComposer')
     def test_cli_custom_url(self, mock_composer_class):

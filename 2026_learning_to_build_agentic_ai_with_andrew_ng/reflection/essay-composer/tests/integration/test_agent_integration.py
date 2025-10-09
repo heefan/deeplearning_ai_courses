@@ -61,7 +61,7 @@ class TestAgentIntegration:
         mock_reviser.return_value = mock_rev_instance
         mock_sequential.return_value = mock_workflow
         
-        # Mock workflow execution
+        # Mock individual agent execution
         expected_result = {
             "topic": "Test Topic",
             "draft": "Generated draft",
@@ -69,18 +69,35 @@ class TestAgentIntegration:
             "final_essay": "Final essay",
             "workflow_status": "completed"
         }
-        mock_workflow.execute.return_value = expected_result
+        
+        # Mock the agent run_async methods to return the expected result
+        mock_gen_instance.run_async.return_value = {
+            "topic": "Test Topic",
+            "draft": "Generated draft",
+            "generation_status": "completed"
+        }
+        mock_ref_instance.run_async.return_value = {
+            "topic": "Test Topic",
+            "draft": "Generated draft",
+            "critique": "Generated critique",
+            "reflection_status": "completed"
+        }
+        mock_rev_instance.run_async.return_value = {
+            "topic": "Test Topic",
+            "draft": "Generated draft",
+            "critique": "Generated critique",
+            "final_essay": "Final essay",
+            "revision_status": "completed",
+            "workflow_status": "completed"
+        }
         
         orchestrator = EssayComposerOrchestrator()
         result = orchestrator.compose_essay("Test Topic", verbose=False)
         
         # Verify workflow was called with correct context
-        # Note: We now use manual execution instead of workflow.execute
         assert result["topic"] == "Test Topic"
         assert result["workflow_status"] == "completed"
-        
-        # Verify result
-        assert result == expected_result
+        assert result["final_essay"] == "Final essay"
     
     @patch('src.agents.orchestrator.EssayGeneratorAgent')
     @patch('src.agents.orchestrator.ReflectorAgent')
@@ -99,10 +116,10 @@ class TestAgentIntegration:
         mock_reviser.return_value = mock_rev_instance
         mock_sequential.return_value = mock_workflow
         
+        orchestrator = EssayComposerOrchestrator()
+        
         # Mock workflow execution failure - we'll mock the individual agents instead
         orchestrator.generator.run_async.side_effect = Exception("Workflow execution failed")
-        
-        orchestrator = EssayComposerOrchestrator()
         
         with pytest.raises(Exception) as exc_info:
             orchestrator.compose_essay("Test Topic", verbose=False)

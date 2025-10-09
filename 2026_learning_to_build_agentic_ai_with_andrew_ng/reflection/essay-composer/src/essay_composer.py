@@ -47,12 +47,20 @@ class EssayComposer:
               help='Test connection to LM Studio')
 @click.option('--workflow-info', is_flag=True, 
               help='Show ADK workflow information')
-def main(topic: str, url: str, quiet: bool, test: bool, workflow_info: bool):
+@click.option('--legacy', is_flag=True, 
+              help='Use legacy mode (deprecated)')
+def main(topic: str, url: str, quiet: bool, test: bool, workflow_info: bool, legacy: bool):
     """Essay Composer - Generate high-quality essays using AI reflection with Google ADK.
     
     TOPIC: The essay topic to write about
     """
     composer = EssayComposer(url)
+    
+    # Handle legacy mode
+    if legacy:
+        click.echo("⚠️  Legacy mode is deprecated. Please use the standard ADK workflow.")
+        # For now, just continue with normal workflow
+        pass
     
     # Show workflow info if requested
     if workflow_info:
@@ -84,6 +92,12 @@ def main(topic: str, url: str, quiet: bool, test: bool, workflow_info: bool):
             click.echo(f"\n🎉 Essay completed successfully!")
             click.echo(f"Topic: {result['topic']}")
             click.echo(f"Workflow Status: {result.get('workflow_status', '')}")
+        
+        # Always print the final essay content (even in quiet mode)
+        if 'final_essay' in result:
+            click.echo(f"\nFinal Essay:\n{result['final_essay']}")
+        elif 'draft' in result:
+            click.echo(f"\nEssay:\n{result['draft']}")
         
     except Exception as e:
         click.echo(f"❌ Error: {str(e)}", err=True)

@@ -16,14 +16,12 @@ class EssayPrompts:
         Returns:
             Formatted prompt for essay generation
         """
-        return f"""Write a well-structured essay on the topic: "{topic}"
+        return f"""Write a well-structured essay on: "{topic}"
 
-Requirements:
-- Write a complete essay with introduction, body paragraphs, and conclusion
-- Aim for 500-800 words
-- Use clear, coherent arguments
-- Include specific examples or evidence where appropriate
-- Write in a formal, academic tone
+Include: introduction, body paragraphs, and conclusion.
+Aim for 500-800 words.
+Use clear arguments and examples.
+Write in a formal, academic tone.
 
 Essay:"""
 
@@ -37,16 +35,16 @@ Essay:"""
         Returns:
             Formatted prompt for reflection/critique
         """
-        return f"""Please provide a detailed critique of the following essay. Focus on:
+        return f"""Critique this essay. Focus on:
+- Structure and Organization
+- Argument Quality
+- Clarity and Coherence
+- Evidence and Examples
+- Writing Quality
+- Areas for Improvement
+- Specific improvement suggestions
 
-1. **Structure and Organization**: Is the essay well-organized with clear introduction, body, and conclusion?
-2. **Argument Quality**: Are the arguments logical, well-supported, and persuasive?
-3. **Clarity and Coherence**: Is the writing clear and easy to follow?
-4. **Evidence and Examples**: Are claims supported with appropriate evidence?
-5. **Writing Quality**: Grammar, style, and flow
-6. **Areas for Improvement**: Specific suggestions for enhancement
-
-Essay to critique:
+Essay:
 {draft}
 
 Critique:"""
@@ -62,14 +60,14 @@ Critique:"""
         Returns:
             Formatted prompt for essay revision
         """
-        return f"""Based on the following essay draft and critique, write an improved version of the essay.
+        return f"""Revise this essay based on the feedback:
 
-Original Essay:
+Original:
 {draft}
 
-Critique and Feedback:
+Feedback:
 {critique}
 
-Please revise the essay incorporating the feedback. Maintain the same topic and core arguments while addressing the identified issues. Write a polished, final version that is well-structured, clear, and persuasive.
+Write an improved version incorporating the feedback. Write a polished, final version:
 
 Revised Essay:"""

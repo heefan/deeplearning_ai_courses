@@ -1,0 +1,632 @@
+openapi: 3.0.3
+info:
+  title: Test Fix Management API
+  description: API for managing test failure fixes and progress tracking
+  version: 1.0.0
+  contact:
+    name: Essay Composer Team
+    email: team@essay-composer.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.essay-composer.com/v1
+    description: Production server
+
+paths:
+  /test-failures:
+    get:
+      summary: List all test failures
+      description: Retrieve all test failures with optional filtering
+      parameters:
+        - name: category
+          in: query
+          description: Filter by test category
+          schema:
+            type: string
+            enum: [CLI, INTEGRATION, ADK, PROMPTS]
+        - name: priority
+          in: query
+          description: Filter by priority level
+          schema:
+            type: string
+            enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        - name: status
+          in: query
+          description: Filter by fix status
+          schema:
+            type: string
+            enum: [PENDING, IN_PROGRESS, FIXED, VERIFIED]
+        - name: limit
+          in: query
+          description: Maximum number of results
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of test failures
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failures:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TestFailure'
+                  total:
+                    type: integer
+                    description: Total number of failures
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Create a new test failure
+      description: Record a new test failure for tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestFailureInput'
+      responses:
+        '201':
+          description: Test failure created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestFailure'
+        '400':
+          description: Invalid input data
+        '409':
+          description: Test failure already exists
+
+  /test-failures/{failure_id}:
+    get:
+      summary: Get test failure details
+      description: Retrieve detailed information about a specific test failure
+      parameters:
+        - name: failure_id
+          in: path
+          required: true
+          description: Unique identifier for the test failure
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test failure details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestFailure'
+        '404':
+          description: Test failure not found
+
+    put:
+      summary: Update test failure
+      description: Update test failure information
+      parameters:
+        - name: failure_id
+          in: path
+          required: true
+          description: Unique identifier for the test failure
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestFailureUpdate'
+      responses:
+        '200':
+          description: Test failure updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestFailure'
+        '400':
+          description: Invalid input data
+        '404':
+          description: Test failure not found
+
+  /fix-plans:
+    get:
+      summary: List fix plans
+      description: Retrieve all fix plans with optional filtering
+      parameters:
+        - name: status
+          in: query
+          description: Filter by fix plan status
+          schema:
+            type: string
+            enum: [PLANNED, IN_PROGRESS, COMPLETED, FAILED]
+        - name: failure_id
+          in: query
+          description: Filter by associated test failure
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of fix plans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FixPlan'
+                  total:
+                    type: integer
+
+    post:
+      summary: Create a new fix plan
+      description: Create a plan to fix a specific test failure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FixPlanInput'
+      responses:
+        '201':
+          description: Fix plan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FixPlan'
+        '400':
+          description: Invalid input data
+        '404':
+          description: Associated test failure not found
+
+  /fix-plans/{plan_id}:
+    get:
+      summary: Get fix plan details
+      description: Retrieve detailed information about a specific fix plan
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          description: Unique identifier for the fix plan
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fix plan details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FixPlan'
+        '404':
+          description: Fix plan not found
+
+    put:
+      summary: Update fix plan
+      description: Update fix plan information and status
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          description: Unique identifier for the fix plan
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FixPlanUpdate'
+      responses:
+        '200':
+          description: Fix plan updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FixPlan'
+        '400':
+          description: Invalid input data
+        '404':
+          description: Fix plan not found
+
+  /test-executions:
+    post:
+      summary: Record test execution
+      description: Record the results of a test execution run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestExecutionInput'
+      responses:
+        '201':
+          description: Test execution recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestExecution'
+        '400':
+          description: Invalid input data
+
+  /progress:
+    get:
+      summary: Get fix progress
+      description: Retrieve overall progress of test fix implementation
+      responses:
+        '200':
+          description: Fix progress information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FixProgress'
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    TestFailure:
+      type: object
+      required:
+        - test_name
+        - category
+        - priority
+        - error_type
+        - file_path
+        - status
+        - created_at
+      properties:
+        test_name:
+          type: string
+          description: Full test path and name
+          example: "tests/e2e/test_cli_e2e.py::TestCLIE2E::test_cli_basic_usage_adk"
+        category:
+          type: string
+          enum: [CLI, INTEGRATION, ADK, PROMPTS]
+          description: Test category
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+          description: Fix priority level
+        error_message:
+          type: string
+          description: Specific error details
+          example: "AssertionError: assert 'Generated essay content' in output"
+        error_type:
+          type: string
+          description: Type of error
+          example: "AssertionError"
+        file_path:
+          type: string
+          description: Path to test file
+          example: "tests/e2e/test_cli_e2e.py"
+        line_number:
+          type: integer
+          description: Line where failure occurs
+          example: 42
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, FIXED, VERIFIED]
+          description: Current fix status
+        created_at:
+          type: string
+          format: date-time
+          description: When failure was identified
+        fixed_at:
+          type: string
+          format: date-time
+          description: When fix was applied
+        verified_at:
+          type: string
+          format: date-time
+          description: When fix was verified
+
+    TestFailureInput:
+      type: object
+      required:
+        - test_name
+        - category
+        - priority
+        - error_type
+        - file_path
+      properties:
+        test_name:
+          type: string
+        category:
+          type: string
+          enum: [CLI, INTEGRATION, ADK, PROMPTS]
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, MEDIUM, LOW]
+        error_message:
+          type: string
+        error_type:
+          type: string
+        file_path:
+          type: string
+        line_number:
+          type: integer
+
+    TestFailureUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, FIXED, VERIFIED]
+        error_message:
+          type: string
+        fixed_at:
+          type: string
+          format: date-time
+        verified_at:
+          type: string
+          format: date-time
+
+    FixPlan:
+      type: object
+      required:
+        - id
+        - test_failure_id
+        - fix_type
+        - description
+        - estimated_effort
+        - files_to_modify
+        - validation_steps
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+        test_failure_id:
+          type: string
+          description: Reference to TestFailure
+        fix_type:
+          type: string
+          enum: [CODE_CHANGE, MOCK_UPDATE, PROMPT_UPDATE, CONFIG_CHANGE]
+          description: Type of fix required
+        description:
+          type: string
+          description: Detailed fix description
+        estimated_effort:
+          type: integer
+          description: Hours to complete
+          minimum: 1
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: Other fixes that must complete first
+        files_to_modify:
+          type: array
+          items:
+            type: string
+          description: Files that need changes
+        validation_steps:
+          type: array
+          items:
+            type: string
+          description: Steps to verify fix
+        status:
+          type: string
+          enum: [PLANNED, IN_PROGRESS, COMPLETED, FAILED]
+          description: Current status
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    FixPlanInput:
+      type: object
+      required:
+        - test_failure_id
+        - fix_type
+        - description
+        - estimated_effort
+        - files_to_modify
+        - validation_steps
+      properties:
+        test_failure_id:
+          type: string
+        fix_type:
+          type: string
+          enum: [CODE_CHANGE, MOCK_UPDATE, PROMPT_UPDATE, CONFIG_CHANGE]
+        description:
+          type: string
+        estimated_effort:
+          type: integer
+          minimum: 1
+        dependencies:
+          type: array
+          items:
+            type: string
+        files_to_modify:
+          type: array
+          items:
+            type: string
+        validation_steps:
+          type: array
+          items:
+            type: string
+
+    FixPlanUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PLANNED, IN_PROGRESS, COMPLETED, FAILED]
+        description:
+          type: string
+        estimated_effort:
+          type: integer
+          minimum: 1
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    TestExecution:
+      type: object
+      required:
+        - id
+        - execution_time
+        - total_tests
+        - passed_tests
+        - failed_tests
+        - skipped_tests
+        - execution_date
+        - environment
+      properties:
+        id:
+          type: string
+        execution_time:
+          type: number
+          format: float
+          description: Total execution time in seconds
+        total_tests:
+          type: integer
+          description: Total number of tests run
+        passed_tests:
+          type: integer
+          description: Number of tests that passed
+        failed_tests:
+          type: integer
+          description: Number of tests that failed
+        skipped_tests:
+          type: integer
+          description: Number of tests that were skipped
+        test_category:
+          type: string
+          enum: [UNIT, INTEGRATION, E2E, ALL]
+        execution_date:
+          type: string
+          format: date-time
+        environment:
+          type: string
+          description: Test environment details
+
+    TestExecutionInput:
+      type: object
+      required:
+        - execution_time
+        - total_tests
+        - passed_tests
+        - failed_tests
+        - skipped_tests
+        - environment
+      properties:
+        execution_time:
+          type: number
+          format: float
+        total_tests:
+          type: integer
+        passed_tests:
+          type: integer
+        failed_tests:
+          type: integer
+        skipped_tests:
+          type: integer
+        test_category:
+          type: string
+          enum: [UNIT, INTEGRATION, E2E, ALL]
+        environment:
+          type: string
+
+    FixProgress:
+      type: object
+      required:
+        - total_failures
+        - fixed_failures
+        - verified_failures
+        - remaining_failures
+        - completion_percentage
+        - last_updated
+      properties:
+        total_failures:
+          type: integer
+          description: Total number of failures to fix
+        fixed_failures:
+          type: integer
+          description: Number of failures fixed
+        verified_failures:
+          type: integer
+          description: Number of fixes verified
+        remaining_failures:
+          type: integer
+          description: Number of failures still pending
+        completion_percentage:
+          type: number
+          format: float
+          description: Percentage of work completed
+          minimum: 0
+          maximum: 100
+        estimated_completion:
+          type: string
+          format: date-time
+          description: Estimated completion time
+        last_updated:
+          type: string
+          format: date-time
+          description: When progress was last updated
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string

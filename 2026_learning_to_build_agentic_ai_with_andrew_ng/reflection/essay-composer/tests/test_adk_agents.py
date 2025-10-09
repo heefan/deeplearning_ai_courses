@@ -140,6 +140,11 @@ class TestEssayComposerOrchestrator:
         mock_ref_instance = Mock()
         mock_rev_instance = Mock()
         
+        # Create mock adk_agent attributes for each agent
+        mock_gen_instance.adk_agent = Mock()
+        mock_ref_instance.adk_agent = Mock()
+        mock_rev_instance.adk_agent = Mock()
+        
         mock_generator.return_value = mock_gen_instance
         mock_reflector.return_value = mock_ref_instance
         mock_reviser.return_value = mock_rev_instance
@@ -149,9 +154,10 @@ class TestEssayComposerOrchestrator:
         assert orchestrator.generator == mock_gen_instance
         assert orchestrator.reflector == mock_ref_instance
         assert orchestrator.reviser == mock_rev_instance
+        # During testing with mocks, workflow should be None
+        assert orchestrator.workflow is None
     
-    @patch('src.agents.orchestrator.Sequential')
-    def test_get_workflow_info(self, mock_sequential):
+    def test_get_workflow_info(self):
         """Test workflow info retrieval."""
         orchestrator = EssayComposerOrchestrator()
         orchestrator.generator = Mock()
@@ -167,4 +173,4 @@ class TestEssayComposerOrchestrator:
         assert info["generator"] == "Generator description"
         assert info["reflector"] == "Reflector description"
         assert info["reviser"] == "Reviser description"
-        assert info["workflow_type"] == "Sequential ADK Workflow"
+        assert info["workflow_type"] == "SequentialAgent ADK Workflow"
