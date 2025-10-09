@@ -42,14 +42,3 @@ class LMStudioClient:
         except Exception as e:
             raise Exception(f"Error generating text: {str(e)}")
     
-    def test_connection(self) -> bool:
-        """Test if LM Studio is running and accessible.
-        
-        Returns:
-            True if connection successful, False otherwise
-        """
-        try:
-            self.generate_text("Hello", max_tokens=10)
-            return True
-        except:
-            return False
