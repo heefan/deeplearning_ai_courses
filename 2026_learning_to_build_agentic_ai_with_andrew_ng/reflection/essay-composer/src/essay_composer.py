@@ -47,20 +47,12 @@ class EssayComposer:
               help='Test connection to LM Studio')
 @click.option('--workflow-info', is_flag=True, 
               help='Show ADK workflow information')
-@click.option('--legacy', is_flag=True, 
-              help='Use legacy mode (deprecated)')
-def main(topic: str, url: str, quiet: bool, test: bool, workflow_info: bool, legacy: bool):
+def main(topic: str, url: str, quiet: bool, test: bool, workflow_info: bool):
     """Essay Composer - Generate high-quality essays using AI reflection with Google ADK.
     
     TOPIC: The essay topic to write about
     """
     composer = EssayComposer(url)
-    
-    # Handle legacy mode
-    if legacy:
-        click.echo("⚠️  Legacy mode is deprecated. Please use the standard ADK workflow.")
-        # For now, just continue with normal workflow
-        pass
     
     # Show workflow info if requested
     if workflow_info:

@@ -32,26 +32,6 @@ class TestCLIE2E:
         # Verify composer was initialized
         mock_composer_class.assert_called_once()
     
-    @patch('src.essay_composer.EssayComposer')
-    def test_cli_legacy_mode(self, mock_composer_class):
-        """Test CLI usage with legacy mode."""
-        # Setup mocks
-        mock_composer = Mock()
-        mock_composer_class.return_value = mock_composer
-        mock_composer.compose_essay.return_value = {
-            "topic": "Test Topic",
-            "final_essay": "Generated essay content"
-        }
-        
-        runner = CliRunner()
-        result = runner.invoke(main, ["Test Topic", "--legacy"])
-        
-        # Verify successful execution
-        assert result.exit_code == 0
-        assert "Test Topic" in result.output
-        
-        # Verify composer was initialized
-        mock_composer_class.assert_called_once()
     
     @patch('src.essay_composer.EssayComposer')
     def test_cli_quiet_mode(self, mock_composer_class):
@@ -149,25 +129,6 @@ class TestCLIE2E:
         assert "Critiques essays" in result.output
         assert "Revises essays" in result.output
     
-    @patch('src.essay_composer.EssayComposer')
-    def test_cli_workflow_info_legacy(self, mock_composer_class):
-        """Test CLI workflow info with legacy mode."""
-        # Setup mocks
-        mock_composer = Mock()
-        mock_composer_class.return_value = mock_composer
-        mock_composer.orchestrator.get_workflow_info.return_value = {
-            "generator": "Generates essays",
-            "reflector": "Critiques essays", 
-            "reviser": "Revises essays",
-            "workflow_type": "SequentialAgent ADK Workflow"
-        }
-        
-        runner = CliRunner()
-        result = runner.invoke(main, ["Test Topic", "--workflow-info", "--legacy"])
-        
-        # Verify legacy mode info
-        assert result.exit_code == 0
-        assert "🤖 ADK Workflow Information:" in result.output
     
     @patch('src.essay_composer.EssayComposer')
     def test_cli_custom_url(self, mock_composer_class):
@@ -219,7 +180,6 @@ class TestCLIE2E:
         assert "--url" in result.output
         assert "--quiet" in result.output
         assert "--test" in result.output
-        assert "--legacy" in result.output
         assert "--workflow-info" in result.output
     
     def test_cli_missing_topic(self):
