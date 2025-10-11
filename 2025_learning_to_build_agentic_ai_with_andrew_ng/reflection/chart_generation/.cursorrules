@@ -1,0 +1,102 @@
+# Chart Generation Agent - Cursor Rules
+
+## Project Overview
+This is a Google Agent ADK application that implements the reflection AI design pattern for generating Python matplotlib code to visualize coffee sales data.
+
+## Technical Stack
+- **Google Agent ADK** (latest version)
+- **LMStudio (gpt-oss-20b)** - Local model for agent reasoning
+- **uv** - Dependency management
+- **Matplotlib** - Chart generation
+- **Pandas** - Data processing
+- **Pytest** - Testing framework
+
+## Code Style & Standards
+
+### Python
+- Use type hints for all function parameters and return values
+- Follow PEP 8 style guidelines
+- Use async/await for ADK agent calls
+- Prefer dataclasses for structured data
+- Use pathlib for file operations
+
+### ADK Integration
+- Always use structured outputs for agent responses
+- Implement proper error handling for agent failures
+- Use environment variables for configuration
+- Mock ADK calls in unit tests
+
+### Testing
+- Unit tests should mock all external dependencies (ADK, LMStudio)
+- E2E tests should be marked with `@pytest.mark.e2e` for optional execution
+- Aim for >80% code coverage
+- Use pytest fixtures for common test data
+
+### Project Structure
+```
+src/
+├── agents/          # ADK agents (generator, critic, orchestrator)
+├── executor/        # Safe code execution
+├── utils/           # Data schema, prompts, utilities
+└── config.py        # LMStudio and ADK configuration
+
+tests/
+├── unit/            # Unit tests with mocks
+└── e2e/             # End-to-end tests
+```
+
+## Development Guidelines
+
+### Dependencies
+- Use `uv` for all dependency management
+- Pin major versions in pyproject.toml
+- Use `uv run` for running commands
+- Keep dependencies minimal and focused
+
+### LMStudio Integration
+- Default endpoint: http://localhost:1234/v1
+- Model: gpt-oss-20b
+- Use structured outputs for parsing agent responses
+- Handle connection failures gracefully
+
+### Reflection Pattern
+- Generator creates initial code
+- Critic reviews and provides feedback
+- Orchestrator manages iteration loop (max 3 iterations)
+- Use structured output format for critique responses
+
+### Code Execution
+- Extract code from `<execute_python>` tags
+- Execute in restricted environment
+- Capture matplotlib figures
+- Implement timeout protection
+
+## File Naming
+- Use snake_case for Python files
+- Test files: `test_*.py`
+- Configuration files: `config.py`, `.env.example`
+- Use descriptive names that match component purpose
+
+## Error Handling
+- Always handle ADK agent failures
+- Implement retry logic for network calls
+- Use proper logging for debugging
+- Graceful degradation when LMStudio unavailable
+
+## Security
+- Never execute untrusted code without validation
+- Use restricted execution environment
+- Validate all inputs before processing
+- Keep API keys in environment variables
+
+## Performance
+- Cache schema parsing results
+- Use async operations for I/O
+- Implement connection pooling for ADK
+- Mock expensive operations in tests
+
+## Documentation
+- Include docstrings for all public functions
+- Document agent prompt templates
+- Provide clear examples in README
+- Keep design.md updated with changes
