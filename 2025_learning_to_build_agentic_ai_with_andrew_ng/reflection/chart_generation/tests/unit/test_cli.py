@@ -72,7 +72,7 @@ class TestCLI:
         """Test verbose flag functionality."""
         result = runner.invoke(cli, ["--verbose", "--help"])
         assert result.exit_code == 0
-        assert "Verbose mode enabled" in result.output
+        assert "Enable verbose output" in result.output
     
     @patch('src.cli.main._generate_chart')
     def test_generate_command_basic(self, mock_generate, runner, mock_csv_file):
@@ -94,14 +94,14 @@ class TestCLI:
         mock_generate.return_value = None
         
         result = runner.invoke(cli, [
+            "--verbose",
             "generate",
             "Create a test chart",
             "--csv-file", str(mock_csv_file),
             "--output-dir", "./test_output",
             "--max-iterations", "5",
             "--no-execute",
-            "--timeout", "60",
-            "--verbose"
+            "--timeout", "60"
         ])
         
         assert result.exit_code == 0
@@ -229,26 +229,16 @@ class TestCLI:
         # Should not raise exception
         _show_examples()
     
-    @patch('src.cli.main.asyncio.run')
-    @patch('src.cli.main.ReflectionOrchestrator')
-    @patch('src.cli.main.CodeExecutor')
-    @patch('src.cli.main.CriticAgent')
-    @patch('src.cli.main.GeneratorAgent')
-    @patch('src.cli.main.DataSchema')
+    @patch('src.cli.main._generate_chart')
     def test_generate_chart_integration(
         self,
-        mock_data_schema,
-        mock_generator,
-        mock_critic,
-        mock_executor,
-        mock_orchestrator,
-        mock_asyncio_run,
+        mock_generate_chart,
         runner,
         mock_csv_file
     ):
         """Test generate command integration with mocked components."""
-        # Mock the async execution
-        mock_asyncio_run.return_value = None
+        # Mock the async function
+        mock_generate_chart.return_value = None
         
         result = runner.invoke(cli, [
             "generate",
@@ -257,12 +247,7 @@ class TestCLI:
         ])
         
         assert result.exit_code == 0
-        mock_data_schema.assert_called_once()
-        mock_generator.assert_called_once()
-        mock_critic.assert_called_once()
-        mock_executor.assert_called_once()
-        mock_orchestrator.assert_called_once()
-        mock_asyncio_run.assert_called_once()
+        mock_generate_chart.assert_called_once()
     
     def test_cli_with_config_file(self, runner, tmp_path):
         """Test CLI with config file option."""

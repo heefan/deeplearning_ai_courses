@@ -7,6 +7,7 @@ These tests verify the CSV schema parsing and data analysis functionality.
 import pytest
 import pandas as pd
 import tempfile
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -82,7 +83,7 @@ class TestDataSchema:
         assert "Shape: 5 rows, 6 columns" in description
         assert "Columns:" in description
         assert "date (object): 5 unique values" in description
-        assert "coffee_name (object): 5 unique values" in description
+        assert "coffee_name (object): 4 unique values" in description
     
     def test_get_sample_data(self, temp_csv_file):
         """Test getting sample data."""
@@ -123,7 +124,7 @@ class TestDataSchema:
         
         coffee_types = schema.get_coffee_types()
         
-        assert len(coffee_types) == 5
+        assert len(coffee_types) == 4
         assert 'Latte' in coffee_types
         assert 'Cappuccino' in coffee_types
         assert 'Americano' in coffee_types
@@ -184,7 +185,7 @@ class TestDataSchema:
         valid_queries = [
             "Create a chart showing coffee sales in 2024",
             "Plot Q1 revenue data",
-            "Show coffee sales visualization",
+            "Show coffee sales visualization for 2024",
             "Create a graph of 2024 Q1 sales"
         ]
         

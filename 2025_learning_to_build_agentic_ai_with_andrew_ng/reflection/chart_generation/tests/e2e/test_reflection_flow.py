@@ -6,7 +6,7 @@ using mocked LLM responses to simulate real-world scenarios.
 """
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from google.adk.models import ModelConfig
 
 from src.agents.generator import GeneratorAgent
